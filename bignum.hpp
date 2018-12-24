@@ -71,15 +71,15 @@ public:
   Bignum add(const Bignum &rhs) const {
     if (this->sign == rhs.sign) {
       auto pair = this->sign_ignored_add(rhs);
-      return std::move(Bignum(this->sign, pair.first, pair.second));
+      return Bignum(this->sign, pair.first, pair.second);
     }
 
     if (this->sign_ignored_less_than(rhs)) {
       auto pair = rhs.sign_ignored_sub(*this);
-      return std::move(Bignum(rhs.sign, pair.first, pair.second));
+      return Bignum(rhs.sign, pair.first, pair.second);
     } else {
       auto pair = this->sign_ignored_sub(rhs);
-      return std::move(Bignum(this->sign, pair.first, pair.second));
+      return Bignum(this->sign, pair.first, pair.second);
     }
   }
 
@@ -88,14 +88,14 @@ public:
         (rhs.sign == Sign::Positive ? Sign::Negative : Sign::Positive);
     Bignum negate_rhs(negate_sign, rhs.length, rhs.digits);
 
-    return std::move(this->add(negate_rhs));
+    return this->add(negate_rhs);
   }
 
   Bignum mul(const Bignum &rhs) const {
     auto pair = sign_ignored_mul_simple(rhs);
     Sign new_sign = (this->sign == rhs.sign ? Sign::Positive : Sign::Negative);
 
-    return std::move(Bignum(new_sign, pair.first, pair.second));
+    return Bignum(new_sign, pair.first, pair.second);
   }
 
   void print() const {
