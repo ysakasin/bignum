@@ -54,6 +54,24 @@ public:
     }
   }
 
+  Bignum(const std::string &str) : sign(Sign::Positive) {
+    const std::string hex_str = str.substr(2); // pop "0x"
+    length = (hex_str.size() + (8 - 1)) / 8;
+    digits = new uint32_t[length];
+    std::fill_n(digits, length, 0);
+
+    const std::string filled_str = std::string(hex_str.size() % 8, '0') + hex_str;
+
+    for (size_t i = 0; i < length; i++) {
+      size_t begin = filled_str.size() - (i+1)*8;
+      const std::string substr = filled_str.substr(begin, 8);
+      char *end;
+      digits[i] = std::strtoul(substr.c_str(), &end, 16);
+    }
+
+    length = sanitize_length(length, digits);
+  }
+
   ~Bignum() {
     if (digits != nullptr) {
       delete[] digits;
@@ -103,6 +121,14 @@ public:
       printf("%x", digits[i]);
     }
     printf("\n");
+  }
+
+  bool operator==(const Bignum &rhs) const {
+    if (this->length != rhs.length || this->sign != rhs.sign) {
+      return false;
+    }
+
+    return std::memcmp(this->digits, rhs.digits, sizeof(uint32_t) * length) == 0;
   }
 
 private:
